@@ -57,9 +57,9 @@ const App = () => {
       {isAuthenticated  && <Sidebar />}
       <div className="main-content">
         {isAuthenticated && <Topbar />}
-        <main className="page-content">
-          <AppRouter />
-        </main>
+          <main className="page-content">
+            <AppRouter />
+          </main>
       </div>
     </div>
   );

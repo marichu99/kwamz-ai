@@ -1,12 +1,13 @@
+// LoginForm.js
 import React, { useState } from 'react';
 import axios from 'axios';
-import '../styles/form.css';
 
-const LoginForm = ({ onSuccess }) => {
+const LoginForm = ({ onSuccess, onCancel }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,26 +16,46 @@ const LoginForm = ({ onSuccess }) => {
 
     // Client-side validation
     const newErrors = {};
-    if (!username) newErrors.username = 'Username is required';
-    if (!password) newErrors.password = 'Password is required';
+    if (!username.trim()) newErrors.username = 'Username is required';
+    if (!password.trim()) newErrors.password = 'Password is required';
+    
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
 
+    setIsSubmitting(true);
+
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/users/login`, {
-        username,
-        password
+        username: username.trim(),
+        password: password.trim()
       });
+      
       const { access_token, username: user, id, email, phone_number, date_of_birth } = response.data;
+      
       // Store token and user data in localStorage
       localStorage.setItem('token', access_token);
-      localStorage.setItem('user', JSON.stringify({ id, username: user, email, phone_number, date_of_birth }));
+      localStorage.setItem('user', JSON.stringify({ 
+        id, 
+        username: user, 
+        email, 
+        phone_number, 
+        date_of_birth 
+      }));
+      
       setMessage('Login successful!');
-      onSuccess(); // Call onSuccess callback
+      
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error) {
-      setErrors({ general: error.response?.data?.error || 'Login failed' });
+      console.error('Login error:', error);
+      setErrors({ 
+        general: error.response?.data?.error || error.response?.data?.message || 'Login failed. Please try again.' 
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -42,28 +63,52 @@ const LoginForm = ({ onSuccess }) => {
     <div>
       {errors.general && <p className="error">{errors.general}</p>}
       {message && <p className="success">{message}</p>}
+      
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label>Username</label>
+          <label htmlFor="login-username">Username</label>
           <input
             type="text"
+            id="login-username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="Enter username"
+            disabled={isSubmitting}
+            required
           />
           {errors.username && <p className="error">{errors.username}</p>}
         </div>
+        
         <div className="form-group">
-          <label>Password</label>
+          <label htmlFor="login-password">Password</label>
           <input
             type="password"
+            id="login-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter password"
+            disabled={isSubmitting}
+            required
           />
           {errors.password && <p className="error">{errors.password}</p>}
         </div>
-        <button type="submit">Log In</button>
+        
+        <div className="modal-buttons">
+          <button 
+            type="submit" 
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Logging In...' : 'Log In'}
+          </button>
+          <button 
+            type="button"
+            className="cancel-button" 
+            onClick={onCancel}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </button>
+        </div>
       </form>
     </div>
   );

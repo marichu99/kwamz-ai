@@ -24,7 +24,7 @@ def stkpush():
     amount = data.get('amount')
     mpesa = MpesaService()
     response = mpesa.stk_push_simulation(phone_number=phone, amount=int(amount),user_id=user_id)
-    time.sleep(6)
+    # time.sleep(6)
     
     return jsonify(response)
 
@@ -86,6 +86,10 @@ def mpesa_callback():
 
         if transaction_date:
             time_paid = datetime.strptime(str(transaction_date), "%Y%m%d%H%M%S")
+    if reference_code ==None:
+        reference_code ="PAY_FAILED"
+
+    print(f"he reference code is {reference_code}")
 
     # Save to DB anyway (even if cancelled/failed)
     payment = Payment(

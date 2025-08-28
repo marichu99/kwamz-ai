@@ -11,6 +11,7 @@ import '../styles/table.css';
 const KYCPage = () => {
     const [showDocumentForm, setShowDocumentForm] = useState(false);
     const [kycData, setKycData] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const url = `${process.env.REACT_APP_API_URL}/document/get-kyc`;

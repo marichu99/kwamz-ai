@@ -16,13 +16,6 @@ const DocumentForm = ({ onClose }) => {
   const kraPinFileRef = useRef(null);
   const policeClearanceFileRef = useRef(null);
 
-  const sanitizePhone = (phone) => {
-    if (phone.startsWith('0')) return '254' + phone.slice(1);
-    if (phone.startsWith('+')) return phone.slice(1);
-    if (!phone.startsWith('254')) return '254' + phone;
-    return phone;
-  };
-
   useEffect(() => {
     if (taxPayerName && clearedUserName) {
       console.log("The taxpayer name", taxPayerName);
@@ -126,12 +119,12 @@ const DocumentForm = ({ onClose }) => {
       var messageError = ""
       if (resp.data.length > 0) {
         result_code = resp.data[0].result_code
-        if (result_code == 0) {
+        if (result_code === 0) {
           status = "success"
-        }if(result_code == 2001){
+        }if(result_code === 2001){
           status = "failure"
           messageError = "Wrong Mpesa Credentials passed"
-        }if(result_code == 1032){
+        }if(result_code === 1032){
           status = "failure"
           messageError = "Mpesa Push Dissmissed / Cancelled By User"
         }
@@ -146,16 +139,10 @@ const DocumentForm = ({ onClose }) => {
 
     // Step 3: Handle success/failure
     if (status === "success") {
-      alert("Transaction completed successfully.");
       await handleSubmitData();
     } else {
       alert(messageError);
     }
-    // if (response === 'Transaction completed successfully.') {
-    //   await handleSubmitData();
-    // } else {
-    //   alert('STK Push failed: ' + (response || 'Unknown error'));
-    // }
     setLoading(false);
     setShowModal(false);
   };
@@ -207,7 +194,7 @@ const DocumentForm = ({ onClose }) => {
           <input type="text" value={idNumber} onChange={(e) => setIdNumber(e.target.value)} />
         </div>
 
-        <div className="form-buttons">
+        <div className="modal-buttons">
           <button type="button" onClick={() => setShowModal(true)}>Submit</button>
           <button type="button" className="cancel-button" onClick={onClose}>Cancel</button>
         </div>

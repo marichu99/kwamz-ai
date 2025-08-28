@@ -12,7 +12,7 @@ const Logout = () => {
     // Redirect to login
     navigate("/");
   }, [navigate]);
-
+  
   return null; // or a spinner/message if needed
 };
 

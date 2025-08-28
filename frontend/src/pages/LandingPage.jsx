@@ -1,3 +1,4 @@
+// LandingPage.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SignupForm from '../components/SignUpForm';
@@ -19,6 +20,11 @@ const LandingPage = () => {
     setShowLogin(false); 
   };
 
+  const closeModals = () => {
+    setShowLogin(false);
+    setShowSignup(false);
+  };
+
   return (
     <div className="form-container landing-container">
       <h2>Welcome to Kwamz AI</h2>
@@ -29,27 +35,31 @@ const LandingPage = () => {
       </div>
 
       {showSignup && (
-        <div className="modal-overlay">
-          <div className="modal-content">
+        <div className="modal-overlay" onClick={closeModals}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h3>Sign Up</h3>
-            <SignupForm onSuccess={() => {
-              toggleSignup();
-              navigate('/dashboard');
-            }} />
-            <button className="cancel-button" onClick={toggleSignup}>Cancel</button>
+            <SignupForm 
+              onSuccess={() => {
+                closeModals();
+                navigate('/dashboard');
+              }}
+              onCancel={closeModals}
+            />
           </div>
         </div>
       )}
 
       {showLogin && (
-        <div className="modal-overlay">
-          <div className="modal-content">
+        <div className="modal-overlay" onClick={closeModals}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h3>Log In</h3>
-            <LoginForm onSuccess={() => {
-              toggleLogin();
-              navigate('/dashboard');
-            }} />
-            <button className="cancel-button" onClick={toggleLogin}>Cancel</button>
+            <LoginForm 
+              onSuccess={() => {
+                closeModals();
+                navigate('/dashboard');
+              }}
+              onCancel={closeModals}
+            />
           </div>
         </div>
       )}

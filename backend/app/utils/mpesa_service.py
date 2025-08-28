@@ -21,7 +21,7 @@ class MpesaService:
         self.shortcode = os.getenv("MPESA_BUSINESS_SHORTCODE")
         self.passkey = os.getenv("MPESA_PASSKEY")
         # self.callback_url = os.getenv("MPESA_CALLBACK_URL")
-        self.callback_url = "https://35248e3220a5.ngrok-free.app/mpesa/callback"
+        self.callback_url = "https://5769d707de7a.ngrok-free.app/mpesa/callback"
 
     def authenticate(self):
         """Authenticate with Safaricom API and return an access token."""
@@ -85,16 +85,6 @@ class MpesaService:
         response_data = response.json()
         print(f"the response data obtained is {response_data}")
         checkout_request_id = response_data.get("CheckoutRequestID")
-
-        if checkout_request_id:
-            time.sleep(9)
-            # success = self.call_path_recursively(checkout_request_id, token, phone_number, amount, user_id)
-            #self.callBackUrl()
-            # print(f"The transaction success: {success}")
-            # if success == 0:
-            #     return "Transaction completed successfully."
-            # else:
-            #     return "Transaction failed."
 
 
         return response_data

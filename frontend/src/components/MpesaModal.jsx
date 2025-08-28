@@ -59,6 +59,7 @@ const MpesaModal = ({ onClose, onSubmit }) => {
         }
       );
       setLoading(false);
+      console.log("the response mpesa modal",response.data)
       onSubmit(response.data);
     } catch (error) {
       setLoading(false);

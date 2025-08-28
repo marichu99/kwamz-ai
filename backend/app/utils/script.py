@@ -70,12 +70,12 @@ def authenticate_kra_from_app (kra_pin,police_number,id_number,tax_payer_name):
         page = context.new_page()
 
         kra_status = authenticate_kra(page, kra_pin)
-        if "Active" not in kra_status:
+        if "Active" not in kra_status or isinstance(kra_status,type(None)):
             # retry for kra
             kra_status = authenticate_kra(page, kra_pin)
         
         police_status = authenticate_dci(page, police_number, id_number)
-        if "VALID" not in police_status:
+        if "VALID" not in police_status or isinstance(kra_status,type(None)):
             # retry for dci
             police_status = authenticate_dci(page, police_number, id_number)
 
