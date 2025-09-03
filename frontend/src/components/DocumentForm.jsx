@@ -3,7 +3,7 @@ import axios from 'axios';
 import MpesaModal from './MpesaModal';
 import '../styles/form.css';
 
-const DocumentForm = ({ onClose }) => {
+const DocumentForm = ({ onClose,onSubmitSuccess }) => {
   const [kraPin, setKraPin] = useState('');
   const [taxPayerName, setTaxPayerName] = useState('');
   const [policeClearance, setPoliceClearance] = useState('');
@@ -58,28 +58,49 @@ const DocumentForm = ({ onClose }) => {
       setLoading(false);
     }
   };
+const handleSubmitData = async () => {
+    // Validation before submission
+    if (!kraPin || !policeClearance || !idNumber || !taxPayerName) {
+      alert('Please fill in all required fields');
+      return;
+    }
 
-
-
-  const handleSubmitData = async () => {
     const payload = { kraPin, policeClearance, idNumber, taxPayerName };
+    setLoading(true);
+
     try {
       const res = await fetch(`${process.env.REACT_APP_API_URL}/document/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
+
       const result = await res.json();
-      alert(result.success || 'Submission complete');
-      resetForm();
+
+      if (res.ok) {
+        alert(result.message || result.success || 'Submission complete');
+        resetForm();
+
+        // Call the success callback if provided
+        if (onSubmitSuccess) {
+          onSubmitSuccess();
+        }
+
+        // Close the form after successful submission
+        if (onClose) {
+          onClose();
+        }
+      } else {
+        throw new Error(result.error || 'Submission failed');
+      }
     } catch (err) {
       console.error('Submit error:', err);
-      alert('Submission failed.');
+      alert(err.message || 'Submission failed.');
     } finally {
       setLoading(false);
     }
   };
-
+  
   const resetForm = () => {
     setKraPin('');
     setPoliceClearance('');
@@ -121,14 +142,14 @@ const DocumentForm = ({ onClose }) => {
         result_code = resp.data[0].result_code
         if (result_code === 0) {
           status = "success"
-        }if(result_code === 2001){
+        } if (result_code === 2001) {
           status = "failure"
           messageError = "Wrong Mpesa Credentials passed"
-        }if(result_code === 1032){
+        } if (result_code === 1032) {
           status = "failure"
           messageError = "Mpesa Push Dissmissed / Cancelled By User"
         }
-        console.log("The result code is ",result_code)
+        console.log("The result code is ", result_code)
 
       }
 

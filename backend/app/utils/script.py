@@ -18,7 +18,9 @@ def solve_arithmetic_captcha(captcha_image_path):
     # Solve the arithmetic question
     match = re.match(r"(\d+)\s*([\+\-\*/])\s*(\d+)", captcha_text.strip())
     if not match:
-        raise ValueError("Invalid CAPTCHA format")
+        print("An error occurred while solving the captcha")
+        solve_arithmetic_captcha(captcha_image_path)
+        # raise ValueError("Invalid CAPTCHA format")
     num1, operator, num2 = match.groups()
     num1, num2 = int(num1), int(num2)
 
@@ -62,7 +64,7 @@ def authenticate_kra_from_app (kra_pin,police_number,id_number,tax_payer_name):
     print(f"Received inputs - KRA PIN: {kra_pin}, Police Clearance: {police_number}, ID Number: {id_number}")
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False, slow_mo=2000)  # 2000ms (1 second) delay per action
+        browser = p.chromium.launch(headless=True, slow_mo=2000)  # 2000ms (1 second) delay per action
         context = browser.new_context(
             accept_downloads=True,
             user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
@@ -70,12 +72,12 @@ def authenticate_kra_from_app (kra_pin,police_number,id_number,tax_payer_name):
         page = context.new_page()
 
         kra_status = authenticate_kra(page, kra_pin)
-        if "Active" not in kra_status or isinstance(kra_status,type(None)):
+        if kra_status is None or "Active" not in str(kra_status) or isinstance(kra_status,type(None)):
             # retry for kra
             kra_status = authenticate_kra(page, kra_pin)
         
         police_status = authenticate_dci(page, police_number, id_number)
-        if "VALID" not in police_status or isinstance(kra_status,type(None)):
+        if police_status is None or "VALID" not in str(police_status) or isinstance(kra_status,type(None)):
             # retry for dci
             police_status = authenticate_dci(page, police_number, id_number)
 

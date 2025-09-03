@@ -13,15 +13,24 @@ const KYCPage = () => {
     const [kycData, setKycData] = useState([]);
     const [loading, setLoading] = useState(false);
 
+    // Extract data fetching into a separate function
+    const fetchKycData = async () => {
+        setLoading(true);
+        try {
+            const url = `${process.env.REACT_APP_API_URL}/document/get-kyc`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Failed to fetch data');
+            const data = await response.json();
+            setKycData(data);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const url = `${process.env.REACT_APP_API_URL}/document/get-kyc`;
-        fetch(url)
-            .then((response) => {
-                if (!response.ok) throw new Error('Failed to fetch data');
-                return response.json();
-            })
-            .then((data) => setKycData(data))
-            .catch((error) => console.error('Error fetching data:', error));
+        fetchKycData();
     }, []);
 
     const columns = useMemo(() => [
@@ -41,6 +50,12 @@ const KYCPage = () => {
 
     const handlePerformKYC = () => setShowDocumentForm(true);
 
+    const handleFormClose = () => {
+        setShowDocumentForm(false);
+        // Refresh data when form closes
+        fetchKycData();
+    };
+
     return (
         <div>
             <h2>KYC</h2>
@@ -50,6 +65,8 @@ const KYCPage = () => {
                     Perform KYC
                 </button>
             </div>
+
+            {loading && <div>Loading...</div>}
 
             <table className="custom-table">
                 <thead>
@@ -96,7 +113,10 @@ const KYCPage = () => {
             {showDocumentForm && (
                 <div className="modal-overlay">
                     <div className="modal-content">
-                        <DocumentForm onClose={() => setShowDocumentForm(false)} />
+                        <DocumentForm 
+                            onClose={handleFormClose}
+                            onSubmitSuccess={fetchKycData}
+                        />
                     </div>
                 </div>
             )}

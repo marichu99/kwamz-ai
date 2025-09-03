@@ -39,31 +39,31 @@ def get_user(id):
 def create_user():
     form_data = request.get_json()
     print(f"the data is {form_data}")
-    data = form_data.get('formData')
-    if not data:
+    # data = form_data.get('formData')
+    if not form_data:
         return jsonify({'error': 'Missing formData'}), 400
     required_fields = ['username', 'email', 'password']
-    if not data or not all(field in data for field in required_fields):
+    if not form_data or not all(field in form_data for field in required_fields):
         return jsonify({'error': 'Username, email, and password are required'}), 400
 
-    if User.query.filter_by(username=data['username']).first() or User.query.filter_by(email=data['email']).first():
+    if User.query.filter_by(username=form_data['username']).first() or User.query.filter_by(email=form_data['email']).first():
         return jsonify({'error': 'Username or email already exists'}), 400
-    if data.get('phone_number') and User.query.filter_by(phone_number=data['phone_number']).first():
+    if form_data.get('phone_number') and User.query.filter_by(phone_number=form_data['phone_number']).first():
         return jsonify({'error': 'Phone number already exists'}), 400
 
     # Parse date_of_birth if provided
     date_of_birth = None
-    if data.get('dateOfBirth'):
+    if form_data.get('dateOfBirth'):
         try:
-            date_of_birth = datetime.fromisoformat(data['dateOfBirth']).date()
+            date_of_birth = datetime.fromisoformat(form_data['dateOfBirth']).date()
         except ValueError:
             return jsonify({'error': 'Invalid dateOfBirth format. Use YYYY-MM-DD'}), 400
 
     user = User(
-        username=data['username'],
-        email=data['email'],
-        password=data['password'],
-        phone_number=data.get('phoneNumber'),
+        username=form_data['username'],
+        email=form_data['email'],
+        password=form_data['password'],
+        phone_number=form_data.get('phoneNumber'),
         date_of_birth=date_of_birth
     )
     db.session.add(user)

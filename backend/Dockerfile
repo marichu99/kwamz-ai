@@ -1,5 +1,5 @@
-# Use Python 3.11 slim image for smaller size
-FROM python:3.11-slim
+# Use Python slim-bullseye for better Playwright support
+FROM python:3.11-slim-bullseye
 
 # Set working directory
 WORKDIR /app
@@ -9,30 +9,48 @@ RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
     libpq-dev \
-    tesseract-ocr \
-    libtesseract-dev \
-    poppler-utils \
     git \
-    postgresql-client \
     curl \
+    wget \
+    gnupg \
+    netcat \
+    unzip \
+    tesseract-ocr \
+    tesseract-ocr-eng \
+    poppler-utils \
+    postgresql-client \
+    fonts-dejavu-core \
+    fonts-liberation \
+    fonts-noto-cjk \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first (for better caching)
+# Copy requirements first for better caching
 COPY requirements.txt .
 
-# Install Python dependencies
+# Install Python dependencies (as root for system-wide access)
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy entrypoint script and set permissions as root
-COPY entryPoint.sh /app/entryPoint.sh
-RUN chmod +x /app/entryPoint.sh
+# Install Playwright system dependencies as root
+RUN pip install playwright && playwright install-deps
 
 # Copy application code
 COPY . .
 
-# Create a non-root user for security
+# Copy entrypoint script and set permissions
+COPY entryPoint.sh /app/entryPoint.sh
+RUN chmod +x /app/entryPoint.sh
+
+# Create a non-root user for security and set permissions
 RUN useradd -m -u 1000 flaskuser && chown -R flaskuser:flaskuser /app
+
+# Switch to non-root user BEFORE installing browsers
 USER flaskuser
+
+# Install Playwright browsers as the flaskuser (this is the key fix!)
+RUN playwright install chromium
+
+# Set environment variables for Playwright
+ENV PLAYWRIGHT_BROWSERS_PATH=/home/flaskuser/.cache/ms-playwright
 
 # Expose port
 EXPOSE 5000
