@@ -21,7 +21,7 @@ class MpesaService:
         self.shortcode = os.getenv("MPESA_BUSINESS_SHORTCODE")
         self.passkey = os.getenv("MPESA_PASSKEY")
         # self.callback_url = os.getenv("MPESA_CALLBACK_URL")
-        self.callback_url = "https://7a31f5fff721.ngrok-free.app/mpesa/callback"
+        self.callback_url = "https://0c22f838cd50.ngrok-free.app/mpesa/callback"
 
     def authenticate(self):
         """Authenticate with Safaricom API and return an access token."""
